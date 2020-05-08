@@ -3,6 +3,7 @@ use std::fs::File;
 
 mod screen;
 mod key;
+mod data;
 
 fn main() {
     let args: Vec<String> = env::args().collect();

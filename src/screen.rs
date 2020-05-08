@@ -1,14 +1,17 @@
-use termion::screen::AlternateScreen;
-use std::io::{stdout, Write, Read};
-use super::key;
+use std::io::*;
+use super::*;
 use std::fs::File;
+use termion::screen::AlternateScreen;
+use termion::cursor;
+use crate::data::Data;
 
 pub fn screen(file: &mut File) {
-    let mut buf = Vec::new();
-    let _ = file.read_to_end(&mut buf);
+    let mut data = Data::new();
+    let _ = file.read_to_end(&mut data.bin);
 
     let mut screen = AlternateScreen::from(stdout());
-    write!(screen, "{:?}", buf).unwrap();
+    write!(screen, "{}", cursor::Goto(1, 1)).unwrap();
+    write!(screen, "{:?}", data.bin).unwrap();
     screen.flush().unwrap();
 
     key::input();
