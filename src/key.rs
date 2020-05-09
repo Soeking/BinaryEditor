@@ -8,7 +8,7 @@ pub fn input() {
     for event in stdin.events() {
         match event.unwrap() {
             Event::Key(Key::Ctrl('q')) => { break; }
-            _ => { break; }
+            _ => {}
         }
     }
 }
