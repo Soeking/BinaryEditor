@@ -44,19 +44,14 @@ impl Data {
                 write!(screen, "{:>02x} ", &self.bin[x]);
             }
 
-            if i == max_row - 1 {
-                for x in 0..(i + 1) * 16 - self.bin.len() {
-                    write!(screen, "   ");
-                }
-            }
-
-            write!(screen, "  |");
+            write!(screen, "{}|", cursor::Goto(61, (i + 1) as u16));
             for x in range.clone() {
                 write!(screen, "{} ", &self.ascii[x]);
             }
             write!(screen, "|");
             address += 16;
         }
+        write!(screen, "{}{}{}", cursor::Goto(11, 1), cursor::BlinkingBlock, cursor::Show);
     }
 
     pub fn insert() {}

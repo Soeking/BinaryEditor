@@ -11,7 +11,6 @@ pub fn screen(file: &mut File) {
     data.init();
 
     let mut screen = AlternateScreen::from(stdout().into_raw_mode().unwrap());
-    //write!(screen, "{}", termion::cursor::Hide).unwrap();
     data.draw(&mut screen);
 
     screen.flush().unwrap();
