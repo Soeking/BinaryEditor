@@ -15,5 +15,5 @@ pub fn screen(file: &mut File) {
 
     screen.flush().unwrap();
 
-    key::input();
+    key::input(&mut data, &mut screen);
 }
