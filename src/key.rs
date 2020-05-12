@@ -14,17 +14,17 @@ pub fn input<T: Write>(data: &mut Data, screen: &mut T) {
             Event::Key(Key::Up) => { data.move_up(); }
             Event::Key(Key::Right) => { data.move_right(); }
             Event::Key(Key::Left) => { data.move_left(); }
-            Event::Key(Key::Char(c)) => {}
+            Event::Key(Key::Char(_c)) => {}
             _ => {}
         }
 
-        write!(
-            screen,
-            "{}{}{}",
-            cursor::Goto(data.position.col as u16, data.position.row as u16),
-            cursor::BlinkingBlock,
-            cursor::Show
-        );
+        let _ =
+            write!(
+                screen,
+                "{}{}",
+                cursor::Goto(data.position.col as u16, data.position.row as u16),
+                cursor::Show
+            );
         screen.flush().unwrap();
     }
 }

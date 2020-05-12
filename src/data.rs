@@ -40,24 +40,24 @@ impl Data {
     pub fn draw<T: Write>(&mut self, screen: &mut T) {
         let mut address = 0;
         for i in 0..self.max_row {
-            write!(screen, "{}", cursor::Goto(1, (i + 1) as u16)).unwrap();
-            write!(screen, "{:>08x}  ", address);
+            let _ = write!(screen, "{}", cursor::Goto(1, (i + 1) as u16)).unwrap();
+            let _ = write!(screen, "{:>08x}  ", address);
 
             let range =
                 if i != self.max_row - 1 { i * 16..(i + 1) * 16 } else { i * 16..self.bin.len() };
 
             for x in range.clone() {
-                write!(screen, "{:>02x} ", &self.bin[x]);
+                let _ = write!(screen, "{:>02x} ", &self.bin[x]);
             }
 
-            write!(screen, "{}|", cursor::Goto(61, (i + 1) as u16));
+            let _ = write!(screen, "{}|", cursor::Goto(61, (i + 1) as u16));
             for x in range.clone() {
-                write!(screen, "{}", &self.ascii[x]);
+                let _ = write!(screen, "{}", &self.ascii[x]);
             }
-            write!(screen, "|");
+            let _ = write!(screen, "|");
             address += 16;
         }
-        write!(screen, "{}{}{}", cursor::Goto(11, 1), cursor::BlinkingBlock, cursor::Show);
+        let _ = write!(screen, "{}{}{}", cursor::Goto(11, 1), cursor::BlinkingBlock, cursor::Show);
     }
 
     pub fn move_down(&mut self) {
