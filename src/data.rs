@@ -86,5 +86,9 @@ impl Data {
         }
     }
 
-    pub fn insert() {}
+    pub fn backspace(&mut self) {}
+
+    pub fn delete(&mut self) {}
+
+    pub fn insert(&mut self, c: char) {}
 }
