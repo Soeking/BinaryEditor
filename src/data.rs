@@ -72,6 +72,7 @@ impl Data {
         if self.position.row < self.max_row as u32 {
             self.position.row += 1;
         }
+        if self.position.row == self.max_row as u32 { self.at_bottom('d') }
     }
 
     pub fn move_up(&mut self) {
@@ -85,12 +86,42 @@ impl Data {
             self.position.col_id += 1;
             self.position.col = self.position.char_pos[self.position.col_id as usize];
         }
+        if self.position.row == self.max_row as u32 { self.at_bottom('r') }
     }
 
     pub fn move_left(&mut self) {
         if self.position.col_id > 0 {
             self.position.col_id -= 1;
             self.position.col = self.position.char_pos[self.position.col_id as usize];
+        }
+        if self.position.row == self.max_row as u32 { self.at_bottom('l') }
+    }
+
+    pub fn at_bottom(&mut self, direction: char) {
+        let length = self.chars.len() % 32;
+        let before = &self.position.char_pos[0..length];
+        let after = &self.position.char_pos[32..32 + (length / 2)];
+        let positions = [before, after].concat() as Vec<u8>;
+        if !positions.contains(&self.position.col) {
+            if positions.is_empty() {
+                self.position.row -= 1;
+            } else {
+                if self.position.col_id < 32 {
+                    match direction {
+                        'r' => { self.position.col_id = 32; }
+                        'l' => { self.position.col_id = before.len() as u8 - 1 }
+                        'd' => {
+                            let pad = (32 - before.len()) / 2;
+                            if self.position.col_id as usize >= before.len() + pad { self.position.col_id = 32; }
+                            else { self.position.col_id = before.len() as u8 - 1; }
+                        }
+                        _ => {}
+                    }
+                } else {
+                    self.position.col_id = after.len() as u8 + 31;
+                }
+                self.position.col = self.position.char_pos[self.position.col_id as usize];
+            }
         }
     }
 
