@@ -1,5 +1,6 @@
 use std::io::Write;
 use termion::*;
+use std::thread;
 
 pub struct Position {
     pub row: u32,
@@ -97,7 +98,7 @@ impl Data {
         if self.position.row == self.max_row as u32 { self.at_bottom('l') }
     }
 
-    pub fn at_bottom(&mut self, direction: char) {
+    fn at_bottom(&mut self, direction: char) {
         let length = self.chars.len() % 32;
         let before = &self.position.char_pos[0..length];
         let after = &self.position.char_pos[32..32 + (length / 2)];
@@ -112,8 +113,11 @@ impl Data {
                         'l' => { self.position.col_id = before.len() as u8 - 1 }
                         'd' => {
                             let pad = (32 - before.len()) / 2;
-                            if self.position.col_id as usize >= before.len() + pad { self.position.col_id = 32; }
-                            else { self.position.col_id = before.len() as u8 - 1; }
+                            if self.position.col_id as usize >= before.len() + pad {
+                                self.position.col_id = 32;
+                            } else {
+                                self.position.col_id = before.len() as u8 - 1;
+                            }
                         }
                         _ => {}
                     }
@@ -129,5 +133,42 @@ impl Data {
 
     pub fn delete(&mut self) {}
 
-    pub fn insert(&mut self, _c: char) {}
+    pub fn insert(&mut self, _c: char) {
+        if self.position.col_id < 32 {
+            if ('0'..='9').contains(&_c) || ('a'..='f').contains(&_c) {
+                let id = (self.position.row as usize - 1) * 32 + self.position.col_id as usize;
+                self.chars.insert(id, _c);
+                self.position.col_id += 1;
+                if self.position.col_id == 32 {
+                    self.position.col_id = 0;
+                    self.position.row += 1;
+                }
+                self.position.col = self.position.char_pos[self.position.col_id as usize];
+                self.change_bin();
+            }
+        } else {
+            let id = (self.position.row as usize - 1) * 16 + self.position.col_id as usize - 32;
+            self.ascii.insert(id, _c);
+            self.position.col_id += 1;
+            if self.position.col_id == 48 {
+                self.position.col_id = 32;
+                self.position.row += 1;
+            }
+            self.position.col = self.position.char_pos[self.position.col_id as usize];
+            self.change_ascii();
+        }
+    }
+
+    fn change_bin(&mut self) {
+        let mut fix = self.position.col_id as usize - 2;
+        if fix & 1 == 1 { fix += 1; }
+        let id = (self.position.row as usize - 1) * 32 + fix;
+        let id = (self.position.row as usize - 1) * 16 + fix / 2;
+    }
+
+    fn change_ascii(&mut self) {
+        let fix = self.position.col_id as usize - 1;
+        let id = (self.position.row as usize - 1) * 32 + (fix - 32) * 2;
+        let id = (self.position.row as usize - 1) * 16 + fix - 32;
+    }
 }
