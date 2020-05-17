@@ -1,6 +1,7 @@
 use std::io::Write;
 use termion::*;
 use std::thread;
+use super::util::Util;
 
 pub struct Position {
     pub row: u32,
@@ -31,19 +32,16 @@ impl Data {
     pub fn init(&mut self) {
         let bytes = self.bin.clone();
         for x in bytes {
-            match x {
-                32 => { self.ascii.push(' ') }
-                33..=126 => { self.ascii.push(x as char) }
-                _ => { self.ascii.push('.') }
-            }
+            self.ascii.push(x.to_hex());
 
             format!("{:>02x}", x).chars().for_each(|c| self.chars.push(c));
         }
-        self.max_row = self.bin.len() / 16 + 1;
     }
 
     pub fn draw<T: Write>(&mut self, screen: &mut T) {
-        let mut address = 0;
+        self.max_row = self.bin.len() / 16 + 1;
+        let mut address: u64 = 0;
+
         for i in 0..self.max_row {
             let _ = write!(screen, "{}", cursor::Goto(1, (i + 1) as u16)).unwrap();
             let _ = write!(screen, "{:>08x}  ", address);
@@ -66,7 +64,7 @@ impl Data {
             let _ = write!(screen, "|");
             address += 16;
         }
-        let _ = write!(screen, "{}{}{}", cursor::Goto(11, 1), cursor::BlinkingBlock, cursor::Show);
+        let _ = write!(screen, "{}{}{}", cursor::Goto(self.position.col as u16, self.position.row as u16), cursor::BlinkingBlock, cursor::Show);
     }
 
     pub fn move_down(&mut self) {
@@ -160,15 +158,50 @@ impl Data {
     }
 
     fn change_bin(&mut self) {
-        let mut fix = self.position.col_id as usize - 2;
-        if fix & 1 == 1 { fix += 1; }
-        let id = (self.position.row as usize - 1) * 32 + fix;
-        let id = (self.position.row as usize - 1) * 16 + fix / 2;
+        let mut bin_id = (self.position.row as usize - 1) * 32 + self.position.col_id as usize - 2;
+        let mut ascii_id = (self.position.row as usize - 1) * 16 + self.position.col_id as usize / 2 - 1;
+        if bin_id & 1 == 1 {
+            bin_id += 1;
+            ascii_id += 1;
+        }
+        for i in (bin_id..self.chars.len()).step_by(2) {
+            let f = if self.chars[i] >= 'a' {
+                self.chars[i] as u8 - 97 + 10
+            } else {
+                self.chars[i] as u8 - 48
+            };
+            let num = if i == self.chars.len() - 1 {
+                f * 16
+            } else if self.chars[i + 1] >= 'a' {
+                self.chars[i + 1] as u8 - 97 + 10 + f * 16
+            } else {
+                self.chars[i + 1] as u8 - 48 + f * 16
+            };
+
+            if ascii_id == self.bin.len() {
+                self.bin.push(num);
+                self.ascii.push(num.to_hex());
+            } else {
+                unsafe {
+                    let id = self.bin.get_unchecked_mut(ascii_id);
+                    *id = num;
+                }
+
+                unsafe {
+                    let id = self.ascii.get_unchecked_mut(ascii_id);
+                    *id = num.to_hex();
+                }
+            }
+            ascii_id += 1;
+        }
     }
 
     fn change_ascii(&mut self) {
-        let fix = self.position.col_id as usize - 1;
-        let id = (self.position.row as usize - 1) * 32 + (fix - 32) * 2;
-        let id = (self.position.row as usize - 1) * 16 + fix - 32;
+        let mut bin_id = (self.position.row as usize - 1) * 32 + self.position.col_id as usize * 2 - 66;
+        let mut ascii_id = (self.position.row as usize - 1) * 16 + self.position.col_id as usize - 33;
+        if bin_id & 1 == 1 {
+            bin_id += 1;
+            ascii_id += 1;
+        }
     }
 }

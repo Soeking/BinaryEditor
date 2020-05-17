@@ -20,6 +20,7 @@ pub fn input<T: Write>(data: &mut Data, screen: &mut T) {
             Event::Key(Key::Char(_c)) => { data.insert(_c); }
             _ => {}
         }
+        data.draw(screen);
 
         let _ =
             write!(

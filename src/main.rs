@@ -1,6 +1,7 @@
 use std::env;
 use std::fs::File;
 
+pub mod util;
 mod screen;
 mod key;
 mod data;
