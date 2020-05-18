@@ -147,32 +147,39 @@ impl Data {
         } else {
             let id = (self.position.row as usize - 1) * 16 + self.position.col_id as usize - 32;
             self.ascii.insert(id, _c);
+
+            let mut i = 0;
+            let num = format!("{:>02x}", _c as u8);
+            num.chars().for_each(|c| {
+                self.chars.insert(id * 2 + i, c);
+                i += 1;
+            });
+
             self.position.col_id += 1;
             if self.position.col_id == 48 {
                 self.position.col_id = 32;
                 self.position.row += 1;
             }
             self.position.col = self.position.char_pos[self.position.col_id as usize];
-            self.change_ascii();
         }
     }
 
     fn change_bin(&mut self) {
-        let mut bin_id = if self.position.col_id > 1 {
+        let mut bin_id = if self.position.col_id <= 2 && self.position.row == 1 {
+            0
+        } else {
             (self.position.row as usize - 1) * 32 + self.position.col_id as usize - 2
-        } else {
-            0
         };
-        let mut ascii_id = if self.position.col_id > 1 {
+        let mut ascii_id = if self.position.col_id <= 2 && self.position.row == 1 {
+            0
+        } else {
             (self.position.row as usize - 1) * 16 + self.position.col_id as usize / 2 - 1
-        } else {
-            0
         };
-
         if bin_id & 1 == 1 {
             bin_id += 1;
             ascii_id += 1;
         }
+
         for i in (bin_id..self.chars.len()).step_by(2) {
             let f = if self.chars[i] >= 'a' {
                 self.chars[i] as u8 - 97 + 10
@@ -201,15 +208,6 @@ impl Data {
                     *id = num.to_hex();
                 }
             }
-            ascii_id += 1;
-        }
-    }
-
-    fn change_ascii(&mut self) {
-        let mut bin_id = (self.position.row as usize - 1) * 32 + self.position.col_id as usize * 2 - 66;
-        let mut ascii_id = (self.position.row as usize - 1) * 16 + self.position.col_id as usize - 33;
-        if bin_id & 1 == 1 {
-            bin_id += 1;
             ascii_id += 1;
         }
     }
