@@ -39,7 +39,7 @@ impl Data {
     }
 
     pub fn draw<T: Write>(&mut self, screen: &mut T) {
-        self.max_row = self.bin.len() / 16 + 1;
+        self.max_row = (self.bin.len() + 15) / 16;
         let mut address: u64 = 0;
 
         for i in 0..self.max_row {
@@ -158,8 +158,17 @@ impl Data {
     }
 
     fn change_bin(&mut self) {
-        let mut bin_id = (self.position.row as usize - 1) * 32 + self.position.col_id as usize - 2;
-        let mut ascii_id = (self.position.row as usize - 1) * 16 + self.position.col_id as usize / 2 - 1;
+        let mut bin_id = if self.position.col_id > 1 {
+            (self.position.row as usize - 1) * 32 + self.position.col_id as usize - 2
+        } else {
+            0
+        };
+        let mut ascii_id = if self.position.col_id > 1 {
+            (self.position.row as usize - 1) * 16 + self.position.col_id as usize / 2 - 1
+        } else {
+            0
+        };
+
         if bin_id & 1 == 1 {
             bin_id += 1;
             ascii_id += 1;
