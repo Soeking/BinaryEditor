@@ -63,7 +63,13 @@ impl Data {
             let _ = write!(screen, "|");
             address += 16;
         }
-        let _ = write!(screen, "{}{}{}", cursor::Goto(self.position.col as u16, self.position.row as u16), cursor::BlinkingBlock, cursor::Show);
+        let _ = write!(
+            screen,
+            "{}{}{}",
+            cursor::Goto(self.position.col as u16, self.position.row as u16),
+            cursor::BlinkingBlock,
+            cursor::Show);
+        screen.flush().unwrap();
     }
 
     pub fn move_down(&mut self) {

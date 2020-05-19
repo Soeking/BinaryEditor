@@ -13,7 +13,5 @@ pub fn screen(file: &mut File) {
     let mut screen = AlternateScreen::from(stdout().into_raw_mode().unwrap());
     data.draw(&mut screen);
 
-    screen.flush().unwrap();
-
     key::input(&mut data, &mut screen);
 }

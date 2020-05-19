@@ -2,7 +2,6 @@ use std::io::{stdin, Write};
 use termion::input::TermRead;
 use termion::event::{Key, Event};
 use crate::data::Data;
-use termion::cursor;
 
 pub fn input<T: Write>(data: &mut Data, screen: &mut T) {
     let stdin = stdin();
@@ -21,14 +20,5 @@ pub fn input<T: Write>(data: &mut Data, screen: &mut T) {
             _ => {}
         }
         data.draw(screen);
-
-        let _ =
-            write!(
-                screen,
-                "{}{}",
-                cursor::Goto(data.position.col as u16, data.position.row as u16),
-                cursor::Show
-            );
-        screen.flush().unwrap();
     }
 }
