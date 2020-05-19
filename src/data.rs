@@ -1,6 +1,5 @@
 use std::io::Write;
 use termion::*;
-use std::thread;
 use super::util::Util;
 
 pub struct Position {
@@ -147,6 +146,7 @@ impl Data {
         } else {
             let id = (self.position.row as usize - 1) * 16 + self.position.col_id as usize - 32;
             self.ascii.insert(id, _c);
+            self.bin.insert(id, _c as u8);
 
             let mut i = 0;
             let num = format!("{:>02x}", _c as u8);
