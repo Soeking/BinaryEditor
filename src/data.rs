@@ -132,7 +132,33 @@ impl Data {
         }
     }
 
-    pub fn backspace(&mut self) {}
+    pub fn backspace(&mut self) {
+        if (self.position.col_id == 0 || self.position.col_id == 32) && self.position.row == 0 {
+            return;
+        }
+        if self.position.col_id < 32 {
+            self.position.col_id = (self.position.col_id + 15) % 16;
+            if self.position.col_id == 15 {
+                self.position.row -= 1;
+            }
+            self.position.col = self.position.char_pos[self.position.col_id as usize];
+            let id = (self.position.row as usize - 1) * 32 + self.position.col_id as usize;
+            self.chars.remove(id);
+            self.change_bin();
+        } else {
+            self.position.col_id -= 1;
+            if self.position.col_id == 31 {
+                self.position.row -= 1;
+                self.position.col_id = 47;
+            }
+            self.position.col = self.position.char_pos[self.position.col_id as usize];
+            let id = (self.position.row as usize - 1) * 16 + self.position.col_id as usize - 32;
+            self.ascii.remove(id);
+            self.bin.remove(id);
+            self.chars.remove(id);
+            self.chars.remove(id);
+        }
+    }
 
     pub fn delete(&mut self) {}
 
