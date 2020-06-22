@@ -1,8 +1,8 @@
-pub(crate) trait Util {
+pub(crate) trait U8 {
     fn to_hex(&self) -> char;
 }
 
-impl Util for u8 {
+impl U8 for u8 {
     fn to_hex(&self) -> char {
         return match self {
             32 => { ' ' }

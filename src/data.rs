@@ -1,6 +1,6 @@
 use std::io::Write;
 use termion::*;
-use super::util::Util;
+use super::util::U8;
 
 pub struct Position {
     pub row: u32,
@@ -133,18 +133,18 @@ impl Data {
     }
 
     pub fn backspace(&mut self) {
-        if (self.position.col_id == 0 || self.position.col_id == 32) && self.position.row == 0 {
+        if (self.position.col_id == 0 || self.position.col_id == 32) && self.position.row == 1 {
             return;
         }
         if self.position.col_id < 32 {
-            self.position.col_id = (self.position.col_id + 15) % 16;
+            self.position.col_id = (self.position.col_id + 31) % 32;
             if self.position.col_id == 15 {
                 self.position.row -= 1;
             }
             self.position.col = self.position.char_pos[self.position.col_id as usize];
             let id = (self.position.row as usize - 1) * 32 + self.position.col_id as usize;
             self.chars.remove(id);
-            self.change_bin();
+            self.change_bin('d');
         } else {
             self.position.col_id -= 1;
             if self.position.col_id == 31 {
@@ -173,7 +173,7 @@ impl Data {
                     self.position.row += 1;
                 }
                 self.position.col = self.position.char_pos[self.position.col_id as usize];
-                self.change_bin();
+                self.change_bin('i');
             }
         } else {
             let id = (self.position.row as usize - 1) * 16 + self.position.col_id as usize - 32;
@@ -196,7 +196,7 @@ impl Data {
         }
     }
 
-    fn change_bin(&mut self) {
+    fn change_bin(&mut self, c: char) {
         let mut bin_id = if self.position.col_id <= 2 && self.position.row == 1 {
             0
         } else {
@@ -226,9 +226,14 @@ impl Data {
                 self.chars[i + 1] as u8 - 48 + f * 16
             };
 
-            if ascii_id == self.bin.len() {
-                self.bin.push(num);
-                self.ascii.push(num.to_hex());
+            if ascii_id == self.ascii.len() {
+                if c == 'i' {
+                    self.bin.push(num);
+                    self.ascii.push(num.to_hex());
+                } else {
+                    self.bin.remove(self.bin.len() - 1);
+                    self.ascii.remove(self.ascii.len() - 1);
+                }
             } else {
                 unsafe {
                     let id = self.bin.get_unchecked_mut(ascii_id);
