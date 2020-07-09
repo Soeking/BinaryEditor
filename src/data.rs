@@ -155,7 +155,7 @@ impl Data {
         }
         if self.position.col_id < 32 {
             self.position.col_id = (self.position.col_id + 31) % 32;
-            if self.position.col_id == 15 {
+            if self.position.col_id == 31 {
                 self.position.row -= 1;
             }
             self.position.col = self.position.char_pos[self.position.col_id as usize];
