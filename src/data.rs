@@ -244,13 +244,8 @@ impl Data {
             };
 
             if ascii_id == self.ascii.len() {
-                if c == 'i' {
-                    self.bin.push(num);
-                    self.ascii.push(num.to_hex());
-                } else {
-                    self.bin.remove(self.bin.len() - 1);
-                    self.ascii.remove(self.ascii.len() - 1);
-                }
+                self.bin.push(num);
+                self.ascii.push(num.to_hex());
             } else {
                 unsafe {
                     let id = self.bin.get_unchecked_mut(ascii_id);
@@ -260,6 +255,11 @@ impl Data {
                 unsafe {
                     let id = self.ascii.get_unchecked_mut(ascii_id);
                     *id = num.to_hex();
+                }
+
+                if i == self.chars.len() - 2 && c == 'd' {
+                    self.bin.remove(self.bin.len() - 1);
+                    self.ascii.remove(self.ascii.len() - 1);
                 }
             }
             ascii_id += 1;
