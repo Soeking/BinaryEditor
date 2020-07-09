@@ -1,7 +1,7 @@
-use std::io::{stdin, Write};
-use termion::input::TermRead;
-use termion::event::{Key, Event};
 use crate::data::Data;
+use std::io::{stdin, Write};
+use termion::event::{Event, Key};
+use termion::input::TermRead;
 
 pub fn input<T: Write>(data: &mut Data, screen: &mut T) {
     let stdin = stdin();

@@ -1,6 +1,6 @@
+use super::util::U8;
 use std::io::Write;
 use termion::*;
-use super::util::U8;
 
 pub struct Position {
     pub row: u32,
@@ -85,7 +85,8 @@ impl Data {
             "{}{}{}",
             cursor::Goto(self.position.col as u16, self.position.row as u16),
             cursor::BlinkingBlock,
-            cursor::Show);
+            cursor::Show
+        );
         screen.flush().unwrap();
     }
 
@@ -107,7 +108,9 @@ impl Data {
             self.position.col_id += 1;
             self.position.col = self.position.char_pos[self.position.col_id as usize];
         }
-        if self.position.row == self.max_row as u32 { self.at_bottom('r') }
+        if self.position.row == self.max_row as u32 {
+            self.at_bottom('r')
+        }
     }
 
     pub fn move_left(&mut self) {
@@ -115,7 +118,9 @@ impl Data {
             self.position.col_id -= 1;
             self.position.col = self.position.char_pos[self.position.col_id as usize];
         }
-        if self.position.row == self.max_row as u32 { self.at_bottom('l') }
+        if self.position.row == self.max_row as u32 {
+            self.at_bottom('l')
+        }
     }
 
     fn at_bottom(&mut self, direction: char) {
@@ -129,8 +134,8 @@ impl Data {
             } else {
                 if self.position.col_id < 32 {
                     match direction {
-                        'r' => { self.position.col_id = 32; }
-                        'l' => { self.position.col_id = before.len() as u8 - 1 }
+                        'r' => self.position.col_id = 32,
+                        'l' => self.position.col_id = before.len() as u8 - 1,
                         'd' => {
                             let pad = (32 - before.len()) / 2;
                             if self.position.col_id as usize >= before.len() + pad {

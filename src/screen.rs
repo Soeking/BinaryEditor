@@ -1,9 +1,9 @@
-use std::io::*;
 use super::*;
-use std::fs::File;
-use termion::screen::AlternateScreen;
 use crate::data::Data;
+use std::fs::File;
+use std::io::*;
 use termion::raw::IntoRawMode;
+use termion::screen::AlternateScreen;
 
 pub fn screen(file: &mut File) {
     let mut data = Data::new();

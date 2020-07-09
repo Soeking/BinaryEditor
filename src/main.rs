@@ -1,10 +1,10 @@
 use std::env;
 use std::fs::File;
 
-pub mod util;
-mod screen;
-mod key;
 mod data;
+mod key;
+mod screen;
+pub mod util;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
