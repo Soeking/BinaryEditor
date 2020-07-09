@@ -45,22 +45,39 @@ impl Data {
             let _ = write!(screen, "{}", cursor::Goto(1, (i + 1) as u16)).unwrap();
             let _ = write!(screen, "{:>08x}  ", address);
 
-            let range =
-                if i != self.max_row - 1 { i * 32..(i + 1) * 32 } else { i * 32..self.chars.len() };
+            if i != self.max_row - 1 {
+                let range = i * 32..(i + 1) * 32;
+                for x in range.clone() {
+                    let _ = write!(screen, "{}", &self.chars[x]);
+                    if x & 1 == 1 { let _ = write!(screen, " "); }
+                    if x % 16 == 15 { let _ = write!(screen, " "); }
+                }
 
-            for x in range.clone() {
-                let _ = write!(screen, "{}", &self.chars[x]);
-                if x & 1 == 1 { let _ = write!(screen, " "); }
-                if x % 16 == 15 { let _ = write!(screen, " "); }
+                let _ = write!(screen, "{}|", cursor::Goto(61, (i + 1) as u16));
+                let range = i * 16..(i + 1) * 16;
+                for x in range.clone() {
+                    let _ = write!(screen, "{}", &self.ascii[x]);
+                }
+                let _ = write!(screen, "|");
+            } else {
+                let range = i * 32..self.chars.len();
+                for x in range.clone() {
+                    let _ = write!(screen, "{}", &self.chars[x]);
+                    if x & 1 == 1 { let _ = write!(screen, " "); }
+                    if x % 16 == 15 { let _ = write!(screen, " "); }
+                }
+                let _ = write!(screen, "{}", clear::AfterCursor);
+
+                let _ = write!(screen, "{}|", cursor::Goto(61, (i + 1) as u16));
+                let range = i * 16..self.ascii.len();
+                for x in range.clone() {
+                    let _ = write!(screen, "{}", &self.ascii[x]);
+                }
+                let _ = write!(screen, "|");
+
+                let _ = write!(screen, "{}{}", cursor::Goto(1, (i + 2) as u16), clear::CurrentLine);
             }
 
-            let _ = write!(screen, "{}|", cursor::Goto(61, (i + 1) as u16));
-            let range =
-                if i != self.max_row - 1 { i * 16..(i + 1) * 16 } else { i * 16..self.ascii.len() };
-            for x in range.clone() {
-                let _ = write!(screen, "{}", &self.ascii[x]);
-            }
-            let _ = write!(screen, "|");
             address += 16;
         }
         let _ = write!(
@@ -155,8 +172,8 @@ impl Data {
             let id = (self.position.row as usize - 1) * 16 + self.position.col_id as usize - 32;
             self.ascii.remove(id);
             self.bin.remove(id);
-            self.chars.remove(id);
-            self.chars.remove(id);
+            self.chars.remove(id * 2);
+            self.chars.remove(id * 2);
         }
     }
 
