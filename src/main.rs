@@ -11,8 +11,11 @@ fn main() {
     if args.len() > 1 {
         let filename = args.get(1).unwrap();
         let file = File::open(filename);
-        screen::screen(&mut file.unwrap());
+        match file {
+            Ok(mut f) => screen::screen(&mut f),
+            Err(e) => println!("{}", e)
+        }
     } else {
-        println!("no file");
+        println!("input file");
     }
 }
