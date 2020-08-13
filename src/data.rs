@@ -182,7 +182,34 @@ impl Data {
         }
     }
 
-    pub fn delete(&mut self) {}
+    pub fn delete(&mut self) {
+        if self.position.col_id < 32 {
+            let id = (self.position.row as usize - 1) * 32 + self.position.col_id as usize;
+            self.chars.remove(id);
+            self.change_bin('d');
+            if self.position.row == self.max_row as u32 && self.position.col_id == self.chars.len() as u8 % 32 {
+                self.position.col_id = (self.position.col_id + 31) % 32;
+                if self.position.col_id == 31 {
+                    self.position.row -= 1;
+                }
+                self.position.col = self.position.char_pos[self.position.col_id as usize];
+            }
+        } else {
+            let id = (self.position.row as usize - 1) * 16 + self.position.col_id as usize - 32;
+            self.ascii.remove(id);
+            self.bin.remove(id);
+            self.chars.remove(id * 2);
+            self.chars.remove(id * 2);
+            if self.position.row == self.max_row as u32 && self.position.col_id - 32 == self.ascii.len() as u8 % 16 {
+                self.position.col_id -= 1;
+                if self.position.col_id == 31 {
+                    self.position.row -= 1;
+                    self.position.col_id = 47;
+                }
+                self.position.col = self.position.char_pos[self.position.col_id as usize];
+            }
+        }
+    }
 
     pub fn insert(&mut self, _c: char) {
         if self.position.col_id < 32 {
