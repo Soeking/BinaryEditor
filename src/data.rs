@@ -80,6 +80,11 @@ impl Data {
 
             address += 16;
         }
+
+        self.show_cursor(screen);
+    }
+
+    pub fn show_cursor<T: Write>(&mut self, screen: &mut T) {
         let _ = write!(
             screen,
             "{}{}{}",
