@@ -1,5 +1,5 @@
 use std::env;
-use std::fs::File;
+use std::fs::*;
 
 mod data;
 mod key;
@@ -10,9 +10,9 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() > 1 {
         let filename = args.get(1).unwrap();
-        let file = File::open(filename);
+        let file = OpenOptions::new().read(true).write(true).create(true).open(filename);
         match file {
-            Ok(mut f) => screen::screen(&mut f),
+            Ok(mut f) => screen::screen(&mut f, filename),
             Err(e) => println!("{}", e)
         }
     } else {
