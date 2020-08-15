@@ -52,7 +52,7 @@ fn save<T: Write>(buf: &Vec<u8>, screen: &mut T, filename: &String) {
 
     let result = file.write_all(buf);
     match result {
-        Ok(_) => { let _ = write!(screen, "{}:saved", cursor::Goto(1, size)); }
+        Ok(_) => { let _ = write!(screen, "{}{}:saved{}", cursor::Goto(1, size), color::Fg(color::Yellow), color::Fg(color::Reset)); }
         Err(e) => println!("{}", e)
     }
     screen.flush().unwrap();
